@@ -65,6 +65,24 @@ window.Gifly = function() {
         return playing;
     };
 
+    Gifly.currentFrame = function() {
+        return curFrame;
+    };
+
+    Gifly.exportFrame = function(idx) {
+        if (idx === undefined) {
+            idx = curFrame;
+        }
+        var cvs = document.createElement("canvas");        
+        cvs.width = reader.width;
+        cvs.height = reader.height;
+        var ctx = cvs.getContext("2d");
+        var imgData = ctx.getImageData(0,0, cvs.width, cvs.height);
+        imgData.data.set(frames[idx]);
+        ctx.putImageData(imgData, 0, 0);
+        return cvs.toDataURL("image/png");
+    };
+
     var process = function(oEvent) {
         var arrayBuffer = oEvent.currentTarget.response; // Note: not oReq.responseText
         if (arrayBuffer) {

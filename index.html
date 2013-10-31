@@ -23,12 +23,25 @@
         };
 
         var handleClick = function(e) {
+            if (e.altKey) {
+                exportFrame();
+                return false;
+            } 
+
             if (Gifly.playing()) {
                 Gifly.stop();
             } else {
                 Gifly.play();
             }
         };
+
+        var exportFrame = function(e) {
+           var link = document.createElement('a');
+           link.download = "frame" + Gifly.currentFrame() + ".png";
+           link.href = Gifly.exportFrame();
+           link.click();
+        }
+
 
         var handleTouchScroll = function(e) {
             var oldHandler = window.ontouchend;
