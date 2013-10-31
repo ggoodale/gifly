@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Animated GIF abuse gone mobile</title>
+    <style type="text/css">
+        div.scrollme { position: absolute; top: 0; left: 0; width: 100%; height: 1000%; }
+        div.funtime  { position: fixed;    top: 0; left: 0; width: 100%; height: 100%; }
+        canvas { width: 100%; margin: 150px auto; }
+    </style>
+</head>
+<body>
+    <div class="scrollme"/>
+    <div class="funtime">
+        <canvas id="canvas"/>
+    </div>
+    <script src="omggif.js"></script>
+    <script src="gifly.js"></script>
+    <script>
+        var handleScroll = function(e) {
+            Gifly.stop();
+            var scrollPercent = parseInt(((document.height - window.scrollY) / document.height)*100);
+            Gifly.drawFrame(scrollPercent);
+        };
+
+        var handleClick = function(e) {
+            if (Gifly.playing()) {
+                Gifly.stop();
+            } else {
+                Gifly.play();
+            }
+        };
+
+        var handleTouchScroll = function(e) {
+            var oldHandler = window.ontouchend;
+
+            window.ontouchmove = handleScroll;
+
+            window.ontouchend = function(e) {
+                window.ontouchmove = handleTouchScroll;
+                window.ontouchend = oldHandler;
+            };
+        };
+
+        window.scrollTo(document.height / 2);
+
+        Gifly.init(document.getElementById('canvas'));
+        Gifly.load("gif/yalj2Kq.gif", function() {
+            var numFrames = Gifly.numFrames;
+            Gifly.play();
+            if (window.ontouchstart !== undefined) {
+                window.ontouchmove = handleTouchScroll;
+                window.ontouchend = handleClick;
+            } else {
+                window.onscroll = handleScroll;
+                window.onclick = handleClick;
+            }
+
+        });
+    </script>
+</body>
+</html>
