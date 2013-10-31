@@ -57,7 +57,12 @@
         window.scrollTo(document.height / 2);
 
         Gifly.init(document.getElementById('canvas'));
-        Gifly.load("gif/yalj2Kq.gif", function() {
+
+        var images = ["yalj2Kq", "osu", "pingpongcat", "DancingPeaks", "moto", "bigfish"];
+
+        var img = images[Math.floor(Math.random() * images.length)];
+
+        Gifly.load("gif/" + img + ".gif", function() {
             var numFrames = Gifly.numFrames;
             Gifly.play();
             if (window.ontouchstart !== undefined) {
