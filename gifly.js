@@ -49,7 +49,7 @@ window.Gifly = function() {
 
     Gifly.play = function() {
         playing = true;
-        requestAnimationFrame(animate);
+        limitLoop(animate);
     };
 
     Gifly.stop = function() {
@@ -65,7 +65,7 @@ window.Gifly = function() {
         return playing;
     };
 
-    process = function(oEvent) {
+    var process = function(oEvent) {
         var arrayBuffer = oEvent.currentTarget.response; // Note: not oReq.responseText
         if (arrayBuffer) {
             decode(new Uint8ClampedArray(arrayBuffer));
@@ -74,12 +74,12 @@ window.Gifly = function() {
         if (loadCb) { loadCb(); }
     };
 
-    processError = function(oEvent) {
+    var processError = function(oEvent) {
         console.log(arguments);
     };
 
     // Private functions
-    decode = function(buf) {
+    var decode = function(buf) {
         console.log("Decoding gif");
         reader = new GifReader(buf);
 
@@ -99,7 +99,7 @@ window.Gifly = function() {
         console.log("Decoded " + reader.numFrames() + " frames");
     };
 
-    drawFrame = function(idx) {
+    var drawFrame = function(idx) {
         idx %= reader.numFrames();
         if (idx < 0) { idx = reader.numFrames() + idx; }
         if (curFrame == idx) { return; }
@@ -111,16 +111,43 @@ window.Gifly = function() {
 
     Gifly.drawFrame = drawFrame;
  
-    animate = function() {
+    var animate = function() {
+        var start = Date.now();
         var i = curFrame;
         drawFrame(++i);
-        if (playing) {
-            requestAnimationFrame(animate);
-        }
+    };
+
+
+    var limitLoop = function (fn) {
+ 
+        // Use var then = Date.now(); if you
+        // don't care about targetting < IE9
+        var then = Date.now();
+          
+        return (function loop(time){
+            if (playing) {
+                requestAnimationFrame(loop);
+            }
+     
+            // again, Date.now() if it's available
+            var now = Date.now();
+            var delta = now - then;
+            var interval = 1000 / Gifly.fps;
+
+            if (delta > interval) {
+                // Update time
+                // now - (delta % interval) is an improvement over just 
+                // using then = now, which can end up lowering overall fps
+                then = now - (delta % interval);
+     
+                // call the fn
+                fn();
+            }
+        }(0));
     };
 
     // LZW-compress a string
-    lzw_encode = function(s) {
+    var lzw_encode = function(s) {
         var dict = {};
         var data = (s + "").split("");
         var out = [];
@@ -147,7 +174,7 @@ window.Gifly = function() {
     };
 
     // Decompress an LZW-encoded string
-    lzw_decode = function(s) {
+    var lzw_decode = function(s) {
         var dict = {};
         var data = (s + "").split("");
         var currChar = data[0];
@@ -171,7 +198,6 @@ window.Gifly = function() {
         }
         return out.join("");
     };
-
 
     return Gifly;
 }();
